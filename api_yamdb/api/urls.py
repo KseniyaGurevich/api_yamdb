@@ -4,12 +4,12 @@ from api.views import CommentViewsSet, ReviewViewsSet
 
 
 router = routers.DefaultRouter()
-router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
+router.register(r'titles/(?P<title_id>\d+)/reviews',
                 ReviewViewsSet,
                 basename='reviews'
                 )
 
-router.register(r'titles/(?P<title_id>\d+)/reviews/)'
+router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                 r'/comments/',
                 CommentViewsSet,
                 basename='comments'

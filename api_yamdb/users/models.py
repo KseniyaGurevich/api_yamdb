@@ -14,5 +14,9 @@ class User(AbstractUser):
         blank=True,
     )
     role = models.CharField(default='user', max_length=16, choices=CHOICES)
-    email = models.EmailField(max_length=50, unique=True)
+    email = models.EmailField(max_length=50, unique=True, blank=False)
     username = models.CharField(max_length=16, unique=True)
+
+    @property
+    def token(self):
+        return self._generate_jwt_token()

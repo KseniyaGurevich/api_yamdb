@@ -15,6 +15,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class GettingTokenSerializer(serializers.ModelSerializer):
+    confirmation_code = serializers.CharField()
+    token = serializers.CharField(read_only=True,)
+
     class Meta:
         model = User
-        fields = ('username', 'confirmation_code')
+        fields = ('username', 'confirmation_code', 'token')
+        read_only_fields = ('token',)

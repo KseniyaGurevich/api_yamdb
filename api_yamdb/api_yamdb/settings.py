@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
     'rest_framework',
     'api',
     'users',
@@ -111,10 +112,9 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
-    #'DEFAULT_PERMISSION_CLASSES': [
-    #   'rest_framework.permissions.IsAuthenticated',
-    #],
-
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -127,3 +127,4 @@ SIMPLE_JWT = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+PASSWORD_RESET_TIMEOUT = 1000000

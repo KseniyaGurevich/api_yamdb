@@ -1,25 +1,31 @@
+from random import random
+
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+
 from requests import Response
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 from users.models import User
-from .serializers import (UserSerializer, RegistrationSerializer, GettingTokenSerializer)
+from .serializers import (UserSerializer, RegistrationSerializer,
+                          GettingTokenSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAdminUser, )
 
-    @action(detail=False, methods=['get', 'patch'], name='me')
-    def me(self, request):
+    @action(detail=True, methods=['get', 'patch'], url_path='me', permission_classes=[IsAuthenticated])
+    def me_profile(self, request):
         user = self.request.user
         if request.method == 'GET':
             serializer = UserSerializer(user)
@@ -30,19 +36,26 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 return Response(serializer.data)
 
+    @action(detail=True, methods=['get', 'patch', 'delete'], url_path='username',)
+    def username_profile(self, request, username):
+        user = get_object_or_404(User, username=username)
+
+
 
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
+
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            email = request.data['email']
-            username = request.data['username']
-            user = request.user
-            user.last_login = None
-            user.password = ''
+            email = serializer.validated_data.get('email')
+            username = serializer.validated_data.get("username")
+            user = get_object_or_404(
+                User,
+                username=username
+            )
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 'Код активации',
@@ -60,19 +73,17 @@ class GettingTokenAPIView(APIView):
     serializer_class = GettingTokenSerializer
 
     def post(self, request):
-        username = request.data['username']
-        print('*' * 30)
-        print(username)
-        print('*' * 30)
         serializer = GettingTokenSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            confirmation_code = request.data['confirmation_code']
+            confirmation_code = request.data.get('confirmation_code')
+            username = request.data.get('username')
             user = get_object_or_404(User, username=username)
-            refresh = RefreshToken.for_user(user)
-            token = refresh.access_token
             if default_token_generator.check_token(user, confirmation_code):
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                refresh = RefreshToken.for_user(user)
+                return Response(
+                    {"token": str(refresh.access_token)},
+                    status=status.HTTP_200_OK
+                    )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -32,6 +32,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context['request']
+        score = attrs['score']
         title = get_object_or_404(
             Title,
             pk=self.context['view'].kwargs.get('title_id')
@@ -41,7 +42,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                                      author=request.user).exists():
                 raise ValidationError('У Вас уже есть отзыв на '
                                       'это произведение')
-            if 0 > attrs['score'] > 10:
+            if 0 > score > 10:
                 raise ValidationError('Значение должно быть от 0 до 10')
         return attrs
 

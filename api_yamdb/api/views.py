@@ -8,6 +8,11 @@ from reviews.models import Review, Title
 from reviews.permissions import IsOwnerAdminModeratorOrReadOnly
 
 
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all().annotate(
+        score=Avg("reviews__score")).order_by("name")
+
+
 class CommentViewsSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = IsOwnerAdminModeratorOrReadOnly

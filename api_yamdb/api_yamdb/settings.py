@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'api',
     'users',
     'reviews',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -127,4 +128,3 @@ SIMPLE_JWT = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-PASSWORD_RESET_TIMEOUT = 1000000

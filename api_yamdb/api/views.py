@@ -69,13 +69,14 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == 'GET':
             serializer = UserSerializer(user)
             return Response(serializer.data)
-        if request.method == 'PATCH':
+        elif request.method == 'PATCH':
             serializer = UserSerializer(user, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-        if request.method == 'DELETE':
+        elif request.method == 'DELETE':
             user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RegistrationAPIView(APIView):

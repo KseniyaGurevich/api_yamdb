@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'users',
-    'reviews',
+    'review',
     'django_filters',
 ]
 
@@ -119,6 +119,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'PAGE_SIZE': 50,
 }
 
 SIMPLE_JWT = {

@@ -13,6 +13,5 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    role = models.CharField(default='user', max_length=16, choices=CHOICES)
-    email = models.EmailField(max_length=50, unique=True, blank=False)
-
+    role = models.CharField(default='user', max_length=30, choices=CHOICES)
+    email = models.EmailField(max_length=254, unique=True, blank=False)

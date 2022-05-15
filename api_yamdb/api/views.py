@@ -30,16 +30,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if serializer.is_valid():
             serializer.save()
-            print('*'*30)
-            print(serializer.data.get('role'))
-            print('*' * 30)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False,
             methods=['get', 'patch'],
             url_path='me',
-            permission_classes=[IsAuthenticated],
+            permission_classes=(IsAuthenticated,),
             serializer_class=UserEditSerializer,
             )
     def my_profile(self, request):

@@ -25,6 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    lookup_field = 'username'
 
     def perform_create(self, serializer):
 
@@ -51,38 +52,34 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
 
-    @action(detail=False,
-            methods=['get', 'patch', 'delete'],
-            url_path=r'(?P<username>[\w.@+-]+)')
-    def username_profile(self, request, username):
-        user = get_object_or_404(User, username=username)
-        if request.method == 'GET':
-            serializer = UserSerializer(user)
-            return Response(serializer.data)
-        elif request.method == 'PATCH':
-            serializer = self.get_serializer(user, data=request.data,
-                                             partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
-        elif request.method == 'DELETE':
-            user.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-        if serializer.is_valid():
+        if request.data.get('username') in (
+                User.objects.values_list('username', flat=True)
+        ):
+            user = get_object_or_404(
+                User, username=request.data.get('username')
+            )
+            confirmation_code = default_token_generator.make_token(user)
+            send_mail(
+                'Код активации',
+                f'Password для {user.username}: {confirmation_code}',
+                'host@gmail.com',
+                [user.email],
+                fail_silently=False
+            )
+            serializer.is_valid(raise_exception=True)
+            return Response(status)
+        else:
+            serializer.is_valid(raise_exception=True)
             serializer.save()
             email = serializer.validated_data.get('email')
             username = serializer.validated_data.get("username")
-            user = get_object_or_404(
-                User,
-                username=username
-            )
+            user = get_object_or_404(User, username=username)
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 'Код активации',
@@ -92,7 +89,6 @@ class RegistrationAPIView(APIView):
                 fail_silently=False
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GettingTokenAPIView(APIView):

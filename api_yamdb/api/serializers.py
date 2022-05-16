@@ -25,7 +25,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=User.objects.all(),
-                fields=['email', 'username'],
+                fields=('email', 'username'),
                 message='User with exactly similar username и email exist'
             )
         ]

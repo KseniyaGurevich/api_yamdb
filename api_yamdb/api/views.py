@@ -54,6 +54,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RegistrationAPIView(APIView):
+
     permission_classes = (AllowAny,)
 
     def post(self, request):

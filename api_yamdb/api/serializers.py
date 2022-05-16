@@ -1,8 +1,11 @@
 from rest_framework import serializers
+
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Review, Title
+from users.models import User
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -49,3 +52,42 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+
+        
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name',
+                  'bio', 'role')
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name',
+                  'bio', 'role')
+        read_only_fields = ('role',)
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'username')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=('email', 'username'),
+                message='User with exactly similar username и email exist'
+            )
+        ]
+
+    def validate(self, data):
+        if data['username'] == "me":
+            raise serializers.ValidationError("Username can't be 'me'")
+        return data
+
+
+class GettingTokenSerializer(serializers.Serializer):
+    confirmation_code = serializers.CharField()
+    username = serializers.CharField()
+

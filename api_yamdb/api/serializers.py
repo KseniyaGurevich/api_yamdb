@@ -4,8 +4,22 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Comment, Review, Title
+from reviews.models import Comment, Review, Title, Genre, Category
 from users.models import User
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
 
 
 class CommentSerializer(serializers.ModelSerializer):

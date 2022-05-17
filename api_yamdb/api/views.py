@@ -11,15 +11,53 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from api.permissions import IsAdmin
+from api.permissions import IsAdmin, IsAdminOrReadOnly
 from api.serializers import (CommentSerializer, ReviewSerializer,
                              UserSerializer, RegistrationSerializer,
-                             GettingTokenSerializer, UserEditSerializer)
+                             GettingTokenSerializer, UserEditSerializer,
+                             GenreSerializer, CategorySerializer)
 
-from reviews.models import Review, Title
+from reviews.models import Review, Title, Genre, Category
 from reviews.permissions import IsOwnerAdminModeratorOrReadOnly
 
 from users.models import User
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+    @action(detail=False,
+            methods=['delete'],
+            url_path=r'(?P<slug>[-\w]+)',
+            permission_classes=(IsAdmin,)
+            )
+    def slug(self, request, slug):
+        genre = get_object_or_404(Genre, slug=slug)
+        genre.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+    @action(detail=False,
+            methods=['delete'],
+            url_path=r'(?P<slug>[-\w]+)',
+            permission_classes=(IsAdmin,)
+            )
+    def slug(self, request, slug):
+        category = get_object_or_404(Category, slug=slug)
+        category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -63,13 +101,6 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     lookup_field = 'username'
 
-    def perform_create(self, serializer):
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     @action(detail=False,
             methods=['get', 'patch'],
             url_path='me',
@@ -90,7 +121,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RegistrationAPIView(APIView):
-
     permission_classes = (AllowAny,)
 
     def post(self, request):

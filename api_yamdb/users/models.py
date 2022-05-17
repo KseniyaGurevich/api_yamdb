@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+
 from django.db import models
 
 CHOICES = (
@@ -15,3 +16,6 @@ class User(AbstractUser):
     )
     role = models.CharField(default='user', max_length=30, choices=CHOICES)
     email = models.EmailField(max_length=254, unique=True, blank=False)
+
+    class Meta:
+        ordering = ['id']

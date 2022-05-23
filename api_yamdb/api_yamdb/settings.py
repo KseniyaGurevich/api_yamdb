@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'users',
     'reviews',
     'django_filters',
+    'django_extensions',
 ]
 
 

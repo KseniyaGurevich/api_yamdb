@@ -9,7 +9,9 @@
 - Python 3.7
 - Django
 - Django REST Framework
-- pytest
+- SQLite3
+- Simple-JWT
+- Git
 
 ### Запуск
 - Клонировать репозиторий и перейти в него в командной строке:
